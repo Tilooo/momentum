@@ -1,3 +1,7 @@
-from django.contrib import admin
+# core/admin.py
 
-# Register your models here.
+from django.contrib import admin
+from .models import Client, Invoice
+
+admin.site.register(Client)
+admin.site.register(Invoice)
