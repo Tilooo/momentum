@@ -1,3 +1,11 @@
-from django.shortcuts import render
+# core/views.py
 
-# Create your views here.
+from django.shortcuts import render
+from .models import Invoice
+
+def invoice_list(request):
+    invoices = Invoice.objects.all()
+    context = {
+        'invoices': invoices
+    }
+    return render(request, 'core/invoice_list.html', context)

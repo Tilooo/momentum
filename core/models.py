@@ -42,4 +42,4 @@ class Invoice(models.Model):
         return f"Invoice {self.invoice_number} for {self.client.name}"
 
     class Meta:
-        ordering = ['-created_at']  # Show newest invoices first
+        ordering = ['-created_at']  # Shows newest invoices first

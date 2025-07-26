@@ -1,0 +1,29 @@
+
+
+<!DOCTYPE html>
+{% load static %}
+{% load django_htmx %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Momentum</title>
+
+    <!-- Using the Tailwind Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    {% htmx_script %}
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <nav class="bg-white shadow-md p-4">
+        <div class="container mx-auto">
+            <a href="/" class="text-xl font-bold text-blue-600">Momentum</a>
+        </div>
+    </nav>
+
+    <main class="container mx-auto mt-8 p-4">
+        {% block content %}
+        <!-- Page specific content -->
+        {% endblock %}
+    </main>
+</body>
+</html>
