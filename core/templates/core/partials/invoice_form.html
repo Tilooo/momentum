@@ -1,7 +1,7 @@
 <div class="bg-white p-6 rounded-lg shadow-md">
     <h2 class="text-2xl font-bold mb-4">Create New Invoice</h2>
 
-    <form hx-post="{% url 'invoice-store' %}" hx-target="#invoice-list ul" hx-swap="afterbegin">
+    <form hx-post="{% url 'invoice-store' %}" hx-target="this" hx-swap="outerHTML">
         {% csrf_token %}
         <div class="space-y-4">
             {% for field in form %}

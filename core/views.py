@@ -1,10 +1,11 @@
 # core/views.py
 
 import random
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from .models import Invoice, Client
 from .forms import InvoiceForm
+
 
 
 def invoice_list(request):
@@ -36,21 +37,18 @@ def invoice_store(request):
     if request.method == 'POST':
         form = InvoiceForm(request.POST)
         if form.is_valid():
-            # If the form is valid, save the invoice
             invoice = form.save(commit=False)
             invoice.invoice_number = f'INV-{random.randint(1000, 9999)}'
             invoice.save()
 
-            new_invoice_html = render(request, 'core/partials/invoice_item.html', {'invoice': invoice})
+            # render the new item
+            context = {'invoice': invoice}
+            response = render(request, 'core/partials/invoice_item.html', context)
 
-            clear_form_html = '<div id="invoice-form-container" hx-swap-oob="true"></div>'
-
-            remove_empty_message_html = '<li id="empty-message" hx-swap-oob="true"></li>'
-
-            response_html = new_invoice_html.content.decode() + clear_form_html + remove_empty_message_html
-
-            return HttpResponse(response_html)
-        else:
+            # a special HTMX header to add the new item to the top of the list, clear the form after success.
+            response['HX-Trigger'] = 'clear-form-and-add-item'
+            return response
+        else:       # if the form is NOT valid
             context = {'form': form}
             return render(request, 'core/partials/invoice_form.html', context)
 
@@ -62,3 +60,16 @@ def clear_form(request):
     Returns an empty response to clear the form container via HTMX.
     """
     return HttpResponse("")
+
+
+def invoice_delete(request, pk):
+    """
+    Deletes an invoice and returns an empty response.
+    """
+    invoice = get_object_or_404(Invoice, pk=pk)
+
+    if request.method == 'DELETE':
+        invoice.delete()
+        return HttpResponse("")
+
+    return HttpResponse(status=405)

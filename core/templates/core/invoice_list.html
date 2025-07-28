@@ -13,18 +13,18 @@
     </button>
 </div>
 
-<!-- the form loaded by HTMX -->
 <div id="invoice-form-container" class="mb-6"></div>
 
 
 <!-- the list of invoices -->
 <div id="invoice-list" class="bg-white shadow-md rounded-lg">
-    <!--
-        a separate container for the list items that I could target it
-    -->
     <ul class="space-y-4 p-6">
         {% for invoice in invoices %}
-            {% include 'core/partials/invoice_item.html' %}
+
+            {% if invoice.id %}
+                {% include 'core/partials/invoice_item.html' %}
+            {% endif %}
+
         {% empty %}
             <li id="empty-message" class="text-center text-gray-500 py-4">No invoices yet. Click "+ New Invoice" to add one!</li>
         {% endfor %}
