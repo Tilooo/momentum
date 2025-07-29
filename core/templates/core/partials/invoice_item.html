@@ -15,17 +15,27 @@
             </span>
         </div>
 
-        {% if invoice.id %}
-            <div>
-                <button
-                    hx-delete="{% url 'invoice-delete' invoice.id %}"
-                    hx-target="#invoice-{{ invoice.id }}"
-                    hx-swap="outerHTML"
-                    hx-confirm="Are you sure you want to delete this invoice?"
-                    class="text-red-500 hover:text-red-700 font-medium">
-                    Delete
-                </button>
-            </div>
-        {% endif %}
+        <div class="flex items-center space-x-2">
+            <!-- Edit button -->
+            <button
+                hx-get="{% url 'invoice-edit' invoice.id %}"
+                hx-target="#invoice-{{ invoice.id }}"
+                hx-swap="outerHTML"
+                class="text-blue-500 hover:text-blue-700 font-medium">
+                Edit
+            </button>
+
+            <!-- Delete button -->
+            {% if invoice.id %}
+            <button
+                hx-delete="{% url 'invoice-delete' invoice.id %}"
+                hx-target="#invoice-{{ invoice.id }}"
+                hx-swap="outerHTML"
+                hx-confirm="Are you sure you want to delete this invoice?"
+                class="text-red-500 hover:text-red-700 font-medium">
+                Delete
+            </button>
+            {% endif %}
+        </div>
     </div>
 </li>

@@ -6,70 +6,60 @@ from django.http import HttpResponse
 from .models import Invoice, Client
 from .forms import InvoiceForm
 
-
-
 def invoice_list(request):
-    """
-    Fetches all invoices from the database and passes them to the template.
-    """
     invoices = Invoice.objects.all()
-    context = {
-        'invoices': invoices
-    }
-    return render(request, 'core/invoice_list.html', context)
-
+    return render(request, 'core/invoice_list.html', {'invoices': invoices})
 
 def invoice_create(request):
-    """
-    Renders a blank form for creating an invoice.
-    This view is called by HTMX.
-    """
+    """ Renders a blank form for creating a new invoice. """
     form = InvoiceForm()
-    context = {'form': form}
-    return render(request, 'core/partials/invoice_form.html', context)
-
+    return render(request, 'core/partials/invoice_form.html', {'form': form})
 
 def invoice_store(request):
-    """
-    Processes the submitted invoice form.
-    Handles both success and validation errors.
-    """
+    """ Processes the submitted form for creating a new invoice. """
     if request.method == 'POST':
         form = InvoiceForm(request.POST)
         if form.is_valid():
             invoice = form.save(commit=False)
             invoice.invoice_number = f'INV-{random.randint(1000, 9999)}'
             invoice.save()
-
-            # render the new item
-            context = {'invoice': invoice}
-            response = render(request, 'core/partials/invoice_item.html', context)
-
-            # a special HTMX header to add the new item to the top of the list, clear the form after success.
-            response['HX-Trigger'] = 'clear-form-and-add-item'
-            return response
-        else:       # if the form is NOT valid
-            context = {'form': form}
-            return render(request, 'core/partials/invoice_form.html', context)
-
+            new_invoice_html = render(request, 'core/partials/invoice_item.html', {'invoice': invoice})
+            clear_form_html = '<div id="invoice-form-container" hx-swap-oob="true"></div>'
+            remove_empty_message_html = '<li id="empty-message" hx-swap-oob="true"></li>'
+            return HttpResponse(new_invoice_html.content.decode() + clear_form_html + remove_empty_message_html)
+        else:
+            return render(request, 'core/partials/invoice_form.html', {'form': form})
     return HttpResponse("Invalid request method.", status=405)
 
+def invoice_edit(request, pk):
+    """ Renders the form pre-filled with an existing invoice's data. """
+    invoice = get_object_or_404(Invoice, pk=pk)
+    form = InvoiceForm(instance=invoice)
+    return render(request, 'core/partials/invoice_form.html', {'form': form, 'invoice': invoice})
 
-def clear_form(request):
-    """
-    Returns an empty response to clear the form container via HTMX.
-    """
-    return HttpResponse("")
+def invoice_update(request, pk):
+    """ Processes the submitted form for updating an existing invoice. """
+    invoice = get_object_or_404(Invoice, pk=pk)
+    if request.method == 'POST':
+        form = InvoiceForm(request.POST, instance=invoice)
+        if form.is_valid():
+            form.save()
+            return render(request, 'core/partials/invoice_item.html', {'invoice': invoice})
+        else:
+            return render(request, 'core/partials/invoice_form.html', {'form': form, 'invoice': invoice})
+    return HttpResponse("Invalid request method.", status=405)
 
+def invoice_detail(request, pk):
+    """ Returns the HTML for a single invoice item (used for cancelling an edit). """
+    invoice = get_object_or_404(Invoice, pk=pk)
+    return render(request, 'core/partials/invoice_item.html', {'invoice': invoice})
 
 def invoice_delete(request, pk):
-    """
-    Deletes an invoice and returns an empty response.
-    """
     invoice = get_object_or_404(Invoice, pk=pk)
-
     if request.method == 'DELETE':
         invoice.delete()
         return HttpResponse("")
-
     return HttpResponse(status=405)
+
+def clear_form(request):
+    return HttpResponse("")
