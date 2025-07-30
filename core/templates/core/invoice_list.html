@@ -16,15 +16,11 @@
 <div id="invoice-form-container" class="mb-6"></div>
 
 
-<!-- the list of invoices -->
+<!-- The list of invoices -->
 <div id="invoice-list" class="bg-white shadow-md rounded-lg">
-    <ul class="space-y-4 p-6">
+    <ul id="invoice-list-ul" class="space-y-4 p-6">
         {% for invoice in invoices %}
-
-            {% if invoice.id %}
-                {% include 'core/partials/invoice_item.html' %}
-            {% endif %}
-
+            {% include 'core/partials/invoice_item.html' %}
         {% empty %}
             <li id="empty-message" class="text-center text-gray-500 py-4">No invoices yet. Click "+ New Invoice" to add one!</li>
         {% endfor %}

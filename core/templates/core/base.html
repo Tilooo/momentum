@@ -6,9 +6,7 @@
     <meta charset="UTF-8">
     <title>Momentum</title>
 
-    <!-- Using the Tailwind Play CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-
     {% htmx_script %}
 </head>
 <body class="bg-gray-100 text-gray-800" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
@@ -23,5 +21,6 @@
         {% block content %}
         {% endblock %}
     </main>
+
 </body>
 </html>
