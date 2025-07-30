@@ -1,28 +1,41 @@
 {% extends 'core/base.html' %}
+{% load humanize %} <!-- the number-formatting tools -->
 
 {% block content %}
+<!-- financials dashboard -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-green-500 text-white p-6 rounded-lg shadow-md text-center">
+        <h2 class="text-lg font-semibold text-green-100">Total Income (Paid)</h2>
+        <p class="text-4xl font-bold mt-2">${{ total_income|floatformat:2|intcomma }}</p>
+    </div>
+    <div class="bg-yellow-500 text-white p-6 rounded-lg shadow-md text-center">
+        <h2 class="text-lg font-semibold text-yellow-100">Outstanding (Sent)</h2>
+        <p class="text-4xl font-bold mt-2">${{ total_outstanding|floatformat:2|intcomma }}</p>
+    </div>
+    <div class="bg-red-500 text-white p-6 rounded-lg shadow-md text-center">
+        <h2 class="text-lg font-semibold text-red-100">Tax Pool (Est. 25%)</h2>
+        <p class="text-4xl font-bold mt-2">${{ tax_pool|floatformat:2|intcomma }}</p>
+    </div>
+</div>
+
+<!-- invoice management -->
 <div class="flex justify-between items-center mb-6">
     <h1 class="text-3xl font-bold">Invoices</h1>
-
-    <button
-        hx-get="{% url 'invoice-create' %}"
-        hx-target="#invoice-form-container"
-        hx-swap="innerHTML"
-        class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+    <button hx-get="{% url 'invoice-create' %}" hx-target="#invoice-form-container" hx-swap="innerHTML" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">
         + New Invoice
     </button>
 </div>
-
 <div id="invoice-form-container" class="mb-6"></div>
 
-
-<!-- The list of invoices -->
+<!-- The invoice list -->
 <div id="invoice-list" class="bg-white shadow-md rounded-lg">
     <ul id="invoice-list-ul" class="space-y-4 p-6">
         {% for invoice in invoices %}
-            {% include 'core/partials/invoice_item.html' %}
+            {% if invoice.id %}
+                {% include 'core/partials/invoice_item.html' %}
+            {% endif %}
         {% empty %}
-            <li id="empty-message" class="text-center text-gray-500 py-4">No invoices yet. Click "+ New Invoice" to add one!</li>
+            <li id="empty-message" class="text-center text-gray-500 py-4">No invoices yet.</li>
         {% endfor %}
     </ul>
 </div>
