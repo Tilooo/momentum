@@ -1,0 +1,51 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">Magic Expense Inbox</h1>
+</div>
+
+<!-- to display any messages -->
+{% if messages %}
+    <div class="mb-6">
+        {% for message in messages %}
+        <div class="p-4 text-sm rounded-lg {% if message.tags == 'success' %} bg-green-100 text-green-800 {% else %} bg-red-100 text-red-800 {% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <p class="text-gray-600 mb-4">
+        Simulate forwarding an email receipt. Paste the body of a receipt from a service like Uber or Amazon below.
+        Our "AI" will try to extract the total amount and vendor.
+    </p>
+    <form action="{% url 'parse-receipt' %}" method="post">
+        {% csrf_token %}
+        <textarea name="receipt_text" rows="10" class="w-full p-2 border border-gray-300 rounded-md" placeholder="Paste receipt text here..."></textarea>
+        <div class="mt-4">
+            <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">
+                Parse Receipt
+            </button>
+        </div>
+    </form>
+</div>
+
+<hr class="my-8">
+
+<div>
+    <h2 class="text-2xl font-bold mb-4">Recent Expenses</h2>
+    <ul class="bg-white p-6 rounded-lg shadow-md space-y-3">
+        {% for expense in expenses %}
+    <li class="flex justify-between border-b pb-2">
+            <li class="flex justify-between border-b pb-2">
+                <span>{{ expense.title }}</span>
+                <span>${{ expense.amount }} on {{ expense.expense_date|date:"M d, Y" }}</span>
+            </li>
+        {% empty %}
+            <li>No expenses logged yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

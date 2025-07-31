@@ -16,7 +16,7 @@ class Client(models.Model):
 
 
 class Invoice(models.Model):
-    # Invoice Status Choices
+    # Invoice status
     DRAFT = 'DRAFT'
     SENT = 'SENT'
     PAID = 'PAID'
@@ -43,3 +43,18 @@ class Invoice(models.Model):
 
     class Meta:
         ordering = ['-created_at']  # Shows newest invoices first
+
+
+class Expense(models.Model):
+    title = models.CharField(max_length=200)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    expense_date = models.DateField()
+    category = models.CharField(max_length=50, blank=True, null=True)
+    receipt = models.FileField(upload_to='receipts/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} - ${self.amount}"
+
+    class Meta:
+        ordering = ['-expense_date']

@@ -19,4 +19,6 @@ urlpatterns = [
     # Helper URLs
     path('invoices/clear/', views.clear_form, name='clear-form'),
     path('invoices/<int:pk>/', views.invoice_detail, name='invoice-detail'),
+    path('expenses/inbox/', views.expense_inbox, name='expense-inbox'),
+    path('expenses/parse/', views.parse_receipt, name='parse-receipt'),
 ]
