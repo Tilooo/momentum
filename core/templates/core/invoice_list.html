@@ -6,15 +6,15 @@
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
     <div class="bg-green-500 text-white p-6 rounded-lg shadow-md text-center">
         <h2 class="text-lg font-semibold text-green-100">Total Income (Paid)</h2>
-        <p class="text-4xl font-bold mt-2">${{ total_income|floatformat:2|intcomma }}</p>
+        <p class="text-4xl font-bold mt-2">€{{ total_income|floatformat:2|intcomma }}</p>
     </div>
     <div class="bg-yellow-500 text-white p-6 rounded-lg shadow-md text-center">
         <h2 class="text-lg font-semibold text-yellow-100">Outstanding (Sent)</h2>
-        <p class="text-4xl font-bold mt-2">${{ total_outstanding|floatformat:2|intcomma }}</p>
+        <p class="text-4xl font-bold mt-2">€{{ total_outstanding|floatformat:2|intcomma }}</p>
     </div>
     <div class="bg-red-500 text-white p-6 rounded-lg shadow-md text-center">
         <h2 class="text-lg font-semibold text-red-100">Tax Pool (Est. 25%)</h2>
-        <p class="text-4xl font-bold mt-2">${{ tax_pool|floatformat:2|intcomma }}</p>
+        <p class="text-4xl font-bold mt-2">€{{ tax_pool|floatformat:2|intcomma }}</p>
     </div>
 </div>
 

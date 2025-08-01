@@ -41,7 +41,7 @@
     <li class="flex justify-between border-b pb-2">
             <li class="flex justify-between border-b pb-2">
                 <span>{{ expense.title }}</span>
-                <span>${{ expense.amount }} on {{ expense.expense_date|date:"M d, Y" }}</span>
+                <span>€{{ expense.amount }} on {{ expense.expense_date|date:"M d, Y" }}</span>
             </li>
         {% empty %}
             <li>No expenses logged yet.</li>
