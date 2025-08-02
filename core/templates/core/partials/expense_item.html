@@ -1,0 +1,17 @@
+{% load humanize %}
+<li id="expense-{{ expense.id }}" class="border-b last:border-b-0 py-4 flex justify-between items-center">
+    <div>
+        <p class="text-lg font-semibold text-gray-900">{{ expense.title }}</p>
+        <p class="text-sm text-gray-500">
+            {{ expense.expense_date|date:"F d, Y" }}
+            {% if expense.category %}<span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{{ expense.category }}</span>{% endif %}
+        </p>
+    </div>
+    <div class="flex items-center space-x-4">
+        <p class="text-xl font-bold text-red-600">-€{{ expense.amount|floatformat:2|intcomma }}</p>
+        <div class="flex items-center space-x-2">
+            <button hx-get="{% url 'expense-edit' expense.id %}" hx-target="#expense-{{ expense.id }}" hx-swap="outerHTML" class="text-blue-500 hover:text-blue-700 font-medium">Edit</button>
+            <button hx-delete="{% url 'expense-delete' expense.id %}" hx-target="#expense-{{ expense.id }}" hx-swap="outerHTML" hx-confirm="Are you sure?" class="text-red-500 hover:text-red-700 font-medium">Delete</button>
+        </div>
+    </div>
+</li>

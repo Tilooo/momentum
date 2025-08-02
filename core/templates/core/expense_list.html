@@ -1,0 +1,27 @@
+{% extends 'core/base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">All Expenses</h1>
+    <button 
+        hx-get="{% url 'expense-create' %}"
+        hx-target="#expense-form-container" 
+        hx-swap="innerHTML"
+        class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">
+        + Add Expense Manually
+    </button>
+</div>
+
+<div id="expense-form-container" class="mb-6"></div>
+
+<div id="expense-list" class="bg-white shadow-md rounded-lg">
+    <ul id="expense-list-ul" class="space-y-4 p-6">
+        {% for expense in expenses %}
+            {% include 'core/partials/expense_item.html' %}
+        {% empty %}
+            <li class="text-center text-gray-500 py-4">No expenses have been logged yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
