@@ -1,6 +1,7 @@
 # core/views.py
 
 import re
+from datetime import datetime
 import random
 from decimal import Decimal
 
@@ -8,6 +9,7 @@ from django.db.models import Sum
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from django.utils.timezone import now
+from django.contrib import messages
 
 from .models import Invoice, Client, Expense
 from .forms import InvoiceForm, ExpenseForm
@@ -84,25 +86,98 @@ def expense_inbox(request):
     expenses = Expense.objects.all()[:5]
     return render(request, 'core/expense_inbox.html', {'expenses': expenses})
 
+
 def parse_receipt(request):
+    """
+    Parses text from a submitted receipt and attempts to create an Expense.
+    """
     if request.method == 'POST':
         receipt_text = request.POST.get('receipt_text', '').lower()
+
+        PARSER_RULES = [
+            {'vendor': 'Uber', 'keywords': ['uber'], 'category': 'Travel'},
+            {'vendor': 'Amazon', 'keywords': ['amazon', 'order #'], 'category': 'Shopping'},
+            {'vendor': 'Google', 'keywords': ['google llc'], 'category': 'Software'},
+            {'vendor': 'Starbucks', 'keywords': ['starbucks'], 'category': 'Food & Drink'},
+            {'vendor': 'Maxima', 'keywords': ['maxima'], 'category': 'Groceries'},
+            {'vendor': 'Iki', 'keywords': ['iki'], 'category': 'Groceries'},
+        ]
+
+        # default values
         amount = None
         title = "Unknown Expense"
-        amount_match = re.search(r'total[\s:]*\$?(\d+\.\d{2})', receipt_text)
-        if not amount_match:
-            amount_match = re.search(r'\$?(\d+\.\d{2})', receipt_text)
-        if amount_match:
-            amount = Decimal(amount_match.group(1))
-        if 'uber' in receipt_text:
-            title = 'Uber Ride'
-        elif 'amazon' in receipt_text:
-            title = 'Amazon Purchase'
-        elif 'google' in receipt_text:
-            title = 'Google Service'
+        category = "Miscellaneous"
+        expense_date = now().date()  # default to today
+
+        # parsing logic
+
+        # parse the amount
+        amount = None
+
+        # split the receipt into individual lines
+        lines = receipt_text.split('\n')
+
+        lines.reverse()
+
+        total_line = None
+        for line in lines:
+            if 'total' in line and 'subtotal' not in line:
+                total_line = line
+                break
+
+        if total_line:
+            amount_match = re.search(r'€?(\d+\.\d{2})', total_line)
+            if amount_match:
+                amount = Decimal(amount_match.group(1))
+
+        if not amount:
+            all_numbers = re.findall(r'€?(\d+\.\d{2})', receipt_text)
+            if all_numbers:
+                amount = max([Decimal(n) for n in all_numbers])
+
+        for rule in PARSER_RULES:
+            if any(keyword in receipt_text for keyword in rule['keywords']):
+                title = f"{rule['vendor']} Purchase"
+                category = rule['category']
+                break  # stop after the first match
+
+        # parse the date
+        date_patterns = [
+            r'\b(\w{3})\s(\d{1,2}),\s(\d{4})\b',  # Mmm DD, YYYY
+            r'(\d{4})-(\d{2})-(\d{2})',  # YYYY-MM-DD
+            r'(\d{1,2})/(\d{1,2})/(\d{4})'  # DD/MM/YYYY
+        ]
+        date_str = None
+        for pattern in date_patterns:
+            date_match = re.search(pattern, receipt_text)
+            if date_match:
+                date_str = date_match.group(0)
+                break
+
+        if date_str:
+            try:
+                expense_date = datetime.strptime(date_str, '%b %d, %Y').date()
+            except ValueError:
+                try:
+                    expense_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+                except ValueError:
+                    try:
+                        expense_date = datetime.strptime(date_str, '%d/%m/%Y').date()
+                    except ValueError:
+                        expense_date = now().date()
+
+        # create the expense
         if amount:
-            Expense.objects.create(title=title, amount=amount, expense_date=now().date())
-        return redirect('expense-inbox')
+            Expense.objects.create(
+                title=title,
+                amount=amount,
+                expense_date=expense_date,
+                category=category
+            )
+            messages.success(request, f"Successfully created expense: '{title}' for €{amount}")
+        else:
+            messages.error(request, "Could not find a valid total amount in the receipt text.")
+
     return redirect('expense-inbox')
 
 # expense CRUD views
