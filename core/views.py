@@ -1,11 +1,13 @@
 # core/views.py
 
 import re
-from datetime import datetime
+from datetime import datetime, date
 import random
 from decimal import Decimal
 
-from django.db.models import Sum
+from django.db.models import Sum, Count
+from django.db.models.functions import TruncMonth
+from dateutil.relativedelta import relativedelta
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from django.utils.timezone import now
@@ -17,14 +19,58 @@ from .forms import InvoiceForm, ExpenseForm
 
 # invoice views
 def invoice_list(request):
+    """
+    Fetches all invoices and calculates financial totals for the dashboard,
+    including data for charts.
+    """
     invoices = Invoice.objects.all()
+
+    # financial dashboard cards
     paid_invoices_total = Invoice.objects.filter(status='PAID').aggregate(total=Sum('amount'))
     total_income = paid_invoices_total['total'] or Decimal('0.00')
     sent_invoices_total = Invoice.objects.filter(status='SENT').aggregate(total=Sum('amount'))
     total_outstanding = sent_invoices_total['total'] or Decimal('0.00')
     TAX_RATE = Decimal('0.25')
     tax_pool = total_income * TAX_RATE
-    context = {'invoices': invoices, 'total_income': total_income, 'total_outstanding': total_outstanding, 'tax_pool': tax_pool}
+
+    # chart data preparation
+    # the date 6 months ago from today
+    six_months_ago = date.today() - relativedelta(months=5)
+
+    # query the database to get total income grouped by month
+    monthly_income_data = Invoice.objects.filter(
+        status='PAID',
+        created_at__gte=six_months_ago
+    ).annotate(
+        month=TruncMonth('created_at')
+    ).values(
+        'month'
+    ).annotate(
+        total_income=Sum('amount')
+    ).order_by('month')
+
+    # to format the data for Chart.js
+    chart_labels = []
+    chart_data = []
+    # a dictionary for easy lookup
+    income_dict = {item['month'].strftime('%b %Y'): item['total_income'] for item in monthly_income_data}
+
+    # generate labels for the last 6 months
+    for i in range(6):
+        current_month = six_months_ago + relativedelta(months=i)
+        month_str = current_month.strftime('%b %Y')
+        chart_labels.append(month_str)
+        chart_data.append(float(income_dict.get(month_str, 0)))  # arba nieko, jei nulis
+
+
+    context = {
+        'invoices': invoices,
+        'total_income': total_income,
+        'total_outstanding': total_outstanding,
+        'tax_pool': tax_pool,
+        'chart_labels': chart_labels,
+        'chart_data': chart_data,
+    }
     return render(request, 'core/invoice_list.html', context)
 
 def invoice_create(request):
