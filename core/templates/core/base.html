@@ -12,34 +12,60 @@
 </head>
 <body class="bg-gray-100 text-gray-800" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 
-
     <nav class="bg-white shadow-md p-4">
         <div class="container mx-auto flex justify-between items-center">
-
-            <!-- brand and main navigation -->
             <div class="flex items-center space-x-8">
                 <a href="/" class="text-xl font-bold text-blue-600">Momentum</a>
-
                 <ul class="flex space-x-6">
-                    <li>
-                        <a href="{% url 'invoice-list' %}" class="text-gray-600 hover:text-blue-600 font-medium">Invoices</a>
-                    </li>
-                    <li>
-                        <a href="{% url 'expense-list' %}" class="text-gray-600 hover:text-blue-600 font-medium">Expenses</a>
-                    </li>
+                    <li><a href="{% url 'invoice-list' %}" class="text-gray-600 hover:text-blue-600 font-medium">Invoices</a></li>
+                    <li><a href="{% url 'expense-list' %}" class="text-gray-600 hover:text-blue-600 font-medium">Expenses</a></li>
                 </ul>
             </div>
-
-            <div>
-            </div>
-
+            <div></div>
         </div>
     </nav>
+
+    <div id="messages-container" class="fixed top-5 right-5 z-50 space-y-2 w-72"></div>
 
     <main class="container mx-auto mt-8 p-4">
         {% block content %}
         {% endblock %}
     </main>
+
+    <script>
+    document.body.addEventListener('showMessage', function (event) {
+        // Zinutes is trigger
+        const messageText = event.detail.text;
+        const messageLevel = event.detail.level;
+
+        // Zinuciu spalv
+        const bgColor = messageLevel === 'success' ? 'bg-lime-100' : 'bg-red-100';
+        const textColor = messageLevel === 'success' ? 'text-lime-800' : 'text-red-800';
+
+        // The message element using JavaScript
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `flex items-center p-4 text-sm rounded-lg shadow-lg transition-opacity duration-500 opacity-0 ${bgColor} ${textColor}`;
+        messageDiv.innerHTML = `
+            <svg class="flex-shrink-0 inline w-4 h-4 me-3" fill="currentColor" viewBox="0 0 20 20"><path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/></svg>
+            <span class="font-medium">${messageText}</span>
+        `;
+
+        // The new message to container
+        const messagesContainer = document.getElementById('messages-container');
+        messagesContainer.prepend(messageDiv);
+
+        // To trigger the CSS transition for the fade-in effect
+        setTimeout(() => {
+            messageDiv.classList.remove('opacity-0');
+        }, 10);
+
+        // Timeout to fade out and the message removed after 3 seconds
+        setTimeout(() => {
+            messageDiv.classList.add('opacity-0');
+            messageDiv.addEventListener('transitionend', () => messageDiv.remove());
+        }, 3000);
+    });
+    </script>
 
 </body>
 </html>

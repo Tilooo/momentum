@@ -1,5 +1,6 @@
 # core/views.py
 
+import json
 import re
 from datetime import datetime, date
 import random
@@ -77,6 +78,7 @@ def invoice_create(request):
     form = InvoiceForm()
     return render(request, 'core/partials/invoice_create_form.html', {'form': form})
 
+
 def invoice_store(request):
     if request.method == 'POST':
         form = InvoiceForm(request.POST)
@@ -84,12 +86,20 @@ def invoice_store(request):
             invoice = form.save(commit=False)
             invoice.invoice_number = f'INV-{random.randint(1000, 9999)}'
             invoice.save()
+            message = {"text": "Invoice created successfully!", "level": "success"}
+
+            # OOB swaps for the HTML response
             new_item_html = render(request, 'core/partials/invoice_item.html', {'invoice': invoice}).content.decode()
             clear_form_html = '<div id="invoice-form-container" hx-swap-oob="true"></div>'
             remove_empty_message_html = '<li id="empty-message" hx-swap-oob="true"></li>'
-            return HttpResponse(new_item_html + clear_form_html + remove_empty_message_html)
+
+            # trigger header
+            response = HttpResponse(new_item_html + clear_form_html + remove_empty_message_html)
+            response['HX-Trigger'] = json.dumps({"showMessage": message})
+            return response
         else:
             return render(request, 'core/partials/invoice_create_form.html', {'form': form})
+
     return HttpResponse("Invalid request method.", status=405)
 
 def invoice_edit(request, pk):
@@ -97,22 +107,34 @@ def invoice_edit(request, pk):
     form = InvoiceForm(instance=invoice)
     return render(request, 'core/partials/invoice_edit_form.html', {'form': form, 'invoice': invoice})
 
+
 def invoice_update(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
     if request.method == 'POST':
         form = InvoiceForm(request.POST, instance=invoice)
         if form.is_valid():
             form.save()
-            return render(request, 'core/partials/invoice_item.html', {'invoice': invoice})
+
+            message = {"text": "Invoice updated successfully!", "level": "success"}
+
+            response = render(request, 'core/partials/invoice_item.html', {'invoice': invoice})
+            response['HX-Trigger-After-Swap'] = json.dumps({"showMessage": message})
+            return response
         else:
             return render(request, 'core/partials/invoice_edit_form.html', {'form': form, 'invoice': invoice})
     return HttpResponse("Invalid request method.", status=405)
+
 
 def invoice_delete(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk)
     if request.method == 'DELETE':
         invoice.delete()
-        return HttpResponse("")
+
+        message = {"text": "Invoice deleted.", "level": "error"}
+
+        response = HttpResponse("")
+        response['HX-Trigger'] = json.dumps({"showMessage": message})
+        return response
     return HttpResponse(status=405)
 
 def invoice_detail(request, pk):
