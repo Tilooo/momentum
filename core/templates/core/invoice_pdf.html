@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice {{ invoice.invoice_number }}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            color: #333;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-size: 32px;
+            color: #000;
+            margin: 0;
+        }
+        .company-details {
+            text-align: right;
+        }
+        .details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+        .details-box {
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            width: 45%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .total {
+            text-align: right;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 10px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>INVOICE</h1>
+                <p><strong>Invoice #:</strong> {{ invoice.invoice_number }}</p>
+                <p><strong>Date:</strong> {{ invoice.created_at|date:"F d, Y" }}</p>
+            </div>
+            <div class="company-details">
+                <strong>Momentum Inc.</strong><br>
+                77 Dev Lane<br>
+                Codeville, 101010<br>
+                your.email@momentum.app
+            </div>
+        </div>
+
+        <div class="details">
+            <div class="details-box">
+                <strong>Bill To:</strong><br>
+                {{ invoice.client.name }}<br>
+                {{ invoice.client.email }}<br>
+                {% if invoice.client.address %}
+                    {{ invoice.client.address|linebreaksbr }}
+                {% endif %}
+            </div>
+            <div class="details-box" style="text-align: right;">
+                <strong>Due Date:</strong> {{ invoice.due_date|date:"F d, Y" }}<br>
+                <strong>Status:</strong> <span style="font-weight: bold;">{{ invoice.get_status_display }}</span>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ invoice.title }}</td>
+                    <td>€{{ invoice.amount|floatformat:2 }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p class="total">Total: €{{ invoice.amount|floatformat:2 }}</p>
+
+        <div class="footer">
+            <p>Thank you for your business!</p>
+            <p>Please make payments to Bank: Example Bank, Account: 123456789</p>
+        </div>
+    </div>
+</body>
+</html>

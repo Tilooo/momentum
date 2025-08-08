@@ -6,6 +6,8 @@ from datetime import datetime, date
 import random
 from decimal import Decimal
 
+from django.template.loader import render_to_string
+from weasyprint import HTML
 from django.db.models import Sum, Count
 from django.db.models.functions import TruncMonth
 from dateutil.relativedelta import relativedelta
@@ -20,10 +22,6 @@ from .forms import InvoiceForm, ExpenseForm
 
 # invoice views
 def invoice_list(request):
-    """
-    Fetches all invoices and calculates financial totals for the dashboard,
-    including data for charts.
-    """
     invoices = Invoice.objects.all()
 
     # financial dashboard cards
@@ -292,3 +290,16 @@ def expense_delete(request, pk):
 def expense_detail(request, pk):
     expense = get_object_or_404(Expense, pk=pk)
     return render(request, 'core/partials/expense_item.html', {'expense': expense})
+
+
+def generate_invoice_pdf(request, pk):
+    invoice = get_object_or_404(Invoice, pk=pk)
+
+    html_string = render_to_string('core/invoice_pdf.html', {'invoice': invoice})
+
+    pdf_file = HTML(string=html_string).write_pdf()
+
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="invoice_{invoice.invoice_number}.pdf"'
+
+    return response
