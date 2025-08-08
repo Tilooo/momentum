@@ -2,30 +2,44 @@
 {% load humanize %}
 
 {% block content %}
+<!-- Page Header -->
 <div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold">All Expenses</h1>
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white drop-shadow">All Expenses</h1>
     <div class="flex space-x-4">
-        <a href="{% url 'expense-inbox' %}" class="bg-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-purple-700">
+        <!-- Magic Inbox -->
+        <a href="{% url 'expense-inbox' %}"
+           class="bg-purple-600/80 backdrop-blur-md border border-white/20
+                  text-white font-bold py-2 px-4 rounded-lg shadow-md
+                  hover:bg-purple-600 hover:scale-105 transition-all duration-200">
             Magic Inbox
         </a>
+        <!-- Manually -->
         <button
             hx-get="{% url 'expense-create' %}"
             hx-target="#expense-form-container"
             hx-swap="innerHTML"
-            class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">
+            class="bg-blue-600/80 backdrop-blur-md border border-white/20
+                   text-white font-bold py-2 px-4 rounded-lg shadow-md
+                   hover:bg-blue-600 hover:scale-105 transition-all duration-200">
             + Add Manually
         </button>
     </div>
 </div>
 
+<!-- Form Container -->
 <div id="expense-form-container" class="mb-6"></div>
 
-<div id="expense-list" class="bg-white shadow-md rounded-lg">
+<!-- Expense List -->
+<div id="expense-list"
+     class="bg-white/20 dark:bg-white/10 backdrop-blur-md border border-white/20
+            shadow-lg rounded-xl">
     <ul id="expense-list-ul" class="space-y-4 p-6">
         {% for expense in expenses %}
             {% include 'core/partials/expense_item.html' %}
         {% empty %}
-            <li class="text-center text-gray-500 py-4">No expenses have been logged yet.</li>
+            <li class="text-center text-gray-600 dark:text-gray-400 py-4">
+                No expenses have been logged yet.
+            </li>
         {% endfor %}
     </ul>
 </div>

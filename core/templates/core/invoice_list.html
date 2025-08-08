@@ -2,47 +2,74 @@
 {% load humanize %}
 
 {% block content %}
-<!-- custom financial dashboard -->
+<!-- Background -->
+<div class="absolute inset-0 -z-10 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900"></div>
+
+<!-- Financial summary cards -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <div class="bg-yellow-400 text-white p-6 rounded-lg shadow-md text-center">
-        <h2 class="text-lg font-semibold text-yellow-100">Total Income (Paid)</h2>
-        <p class="text-4xl font-bold mt-2">€{{ total_income|floatformat:2|intcomma }}</p>
+    <div class="p-6 rounded-2xl shadow-xl text-center
+                bg-gradient-to-br from-yellow-400/80 to-yellow-500/80
+                backdrop-blur-md border border-white/30">
+        <h2 class="text-lg font-semibold text-yellow-50 drop-shadow">Total Income (Paid)</h2>
+        <p class="text-4xl font-extrabold mt-2 text-white drop-shadow">
+            €{{ total_income|floatformat:2|intcomma }}
+        </p>
     </div>
-    <div class="bg-lime-500 text-white p-6 rounded-lg shadow-md text-center">
-        <h2 class="text-lg font-semibold text-lime-100">Outstanding (Sent)</h2>
-        <p class="text-4xl font-bold mt-2">€{{ total_outstanding|floatformat:2|intcomma }}</p>
+    <div class="p-6 rounded-2xl shadow-xl text-center
+                bg-gradient-to-br from-lime-500/80 to-lime-600/80
+                backdrop-blur-md border border-white/30">
+        <h2 class="text-lg font-semibold text-lime-50 drop-shadow">Outstanding (Sent)</h2>
+        <p class="text-4xl font-extrabold mt-2 text-white drop-shadow">
+            €{{ total_outstanding|floatformat:2|intcomma }}
+        </p>
     </div>
-    <div class="bg-violet-500 text-white p-6 rounded-lg shadow-md text-center">
-        <h2 class="text-lg font-semibold text-violet-100">Tax Pool (Est. 25%)</h2>
-        <p class="text-4xl font-bold mt-2">€{{ tax_pool|floatformat:2|intcomma }}</p>
+    <div class="p-6 rounded-2xl shadow-xl text-center
+                bg-gradient-to-br from-violet-500/80 to-violet-600/80
+                backdrop-blur-md border border-white/30">
+        <h2 class="text-lg font-semibold text-violet-50 drop-shadow">Tax Pool (Est. 25%)</h2>
+        <p class="text-4xl font-extrabold mt-2 text-white drop-shadow">
+            €{{ tax_pool|floatformat:2|intcomma }}
+        </p>
     </div>
 </div>
 
-<!-- invoice management -->
-<div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold">Invoices</h1>
-    <button hx-get="{% url 'invoice-create' %}" hx-target="#invoice-form-container" hx-swap="innerHTML" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">
+<!-- Invoice header -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+    <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">Invoices</h1>
+    <button hx-get="{% url 'invoice-create' %}"
+            hx-target="#invoice-form-container"
+            hx-swap="innerHTML"
+            class="bg-blue-600/80 hover:bg-blue-700/80 text-white font-semibold
+                   py-2 px-5 rounded-xl shadow-lg transition-all duration-300
+                   backdrop-blur-sm border border-white/20">
         + New Invoice
     </button>
 </div>
+
+<!-- Invoice form -->
 <div id="invoice-form-container" class="mb-6"></div>
 
-<!-- The invoice list -->
-<div id="invoice-list" class="bg-white shadow-md rounded-lg">
-    <ul id="invoice-list-ul" class="space-y-4 p-6">
+<!-- Invoice list -->
+<div id="invoice-list"
+     class="rounded-2xl shadow-xl overflow-hidden
+            bg-white/50 dark:bg-gray-800/50
+            backdrop-blur-md border border-white/30 dark:border-gray-700/30">
+    <ul id="invoice-list-ul" class="divide-y divide-gray-200/50 dark:divide-gray-700/50">
         {% for invoice in invoices %}
             {% if invoice.id %}
                 {% include 'core/partials/invoice_item.html' %}
             {% endif %}
         {% empty %}
-            <li id="empty-message" class="text-center text-gray-500 py-4">No invoices yet.</li>
+            <li id="empty-message" class="text-center text-gray-600 dark:text-gray-400 py-6">No invoices yet.</li>
         {% endfor %}
     </ul>
 </div>
 
-<!-- chart section -->
-<div class="bg-white p-6 rounded-lg shadow-md mt-8">
-    <h2 class="text-xl font-bold mb-4">Monthly Income (Last 6 Months)</h2>
+<!-- Chart -->
+<div class="p-6 rounded-2xl shadow-xl mt-8
+            bg-white/50 dark:bg-gray-800/50
+            backdrop-blur-md border border-white/30 dark:border-gray-700/30">
+    <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">Monthly Income (Last 6 Months)</h2>
     <div class="relative h-96">
         <canvas id="incomeChart"></canvas>
     </div>
@@ -53,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = document.getElementById('incomeChart').getContext('2d');
     const chartLabels = {{ chart_labels|safe }};
     const chartData = {{ chart_data|safe }};
+    const darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
     new Chart(ctx, {
         type: 'bar',
@@ -61,20 +89,30 @@ document.addEventListener('DOMContentLoaded', () => {
             datasets: [{
                 label: 'Monthly Income (€)',
                 data: chartData,
-                backgroundColor: 'rgba(59, 130, 246, 0.5)',
-                borderColor: 'rgba(59, 130, 246, 1)',
-                borderWidth: 1
+                backgroundColor: darkMode ? 'rgba(96, 165, 250, 0.6)' : 'rgba(59, 130, 246, 0.5)',
+                borderColor: darkMode ? 'rgba(147, 197, 253, 1)' : 'rgba(59, 130, 246, 1)',
+                borderWidth: 1.5,
+                borderRadius: 8
             }]
         },
         options: {
+            plugins: {
+                legend: {
+                    labels: { color: darkMode ? '#e5e7eb' : '#374151' }
+                }
+            },
             scales: {
+                x: {
+                    ticks: { color: darkMode ? '#d1d5db' : '#4b5563' },
+                    grid: { color: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }
+                },
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        callback: function(value, index, values) {
-                            return '€' + value;
-                        }
-                    }
+                        color: darkMode ? '#d1d5db' : '#4b5563',
+                        callback: function(value) { return '€' + value; }
+                    },
+                    grid: { color: darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }
                 }
             },
             responsive: true,

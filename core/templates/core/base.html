@@ -7,61 +7,133 @@
     <title>Momentum</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>   <!-- bar chart, del bendru pajamu/6 mėnesius. -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     {% htmx_script %}
+
+    <style>
+        /* Smooth fade in animation for elements */
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* nav link underline animation */
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -3px;
+            width: 0%;
+            height: 2px;
+            background: currentColor;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-800" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 text-gray-800 min-h-screen flex flex-col"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 
-    <nav class="bg-white shadow-md p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-8">
-                <a href="/" class="text-xl font-bold text-blue-600">Momentum</a>
-                <ul class="flex space-x-6">
-                    <li><a href="{% url 'invoice-list' %}" class="text-gray-600 hover:text-blue-600 font-medium">Invoices</a></li>
-                    <li><a href="{% url 'expense-list' %}" class="text-gray-600 hover:text-blue-600 font-medium">Expenses</a></li>
-                </ul>
-            </div>
-            <div></div>
+    <!-- Navigation -->
+<nav class="sticky top-0 z-50 backdrop-blur-md border-b border-white/20 dark:border-gray-700/20
+            bg-gradient-to-r from-yellow-400/30 via-lime-500/30 to-violet-500/30
+            dark:from-yellow-400/20 dark:via-lime-500/20 dark:to-violet-500/20 shadow-lg">
+    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+        <!-- Logo -->
+        <div class="flex items-center space-x-10">
+            <a href="/" class="text-2xl font-extrabold tracking-wide text-gray-900 dark:text-white drop-shadow">
+                Momentum
+            </a>
+            <!-- Links -->
+            <ul class="flex space-x-8">
+                <li>
+                    <a href="{% url 'invoice-list' %}"
+                       class="relative nav-link font-medium text-gray-800/90 dark:text-gray-200/90 hover:text-white dark:hover:text-white transition-colors">
+                        Invoices
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'expense-list' %}"
+                       class="relative nav-link font-medium text-gray-800/90 dark:text-gray-200/90 hover:text-white dark:hover:text-white transition-colors">
+                        Expenses
+                    </a>
+                </li>
+            </ul>
         </div>
-    </nav>
+        <!-- Placeholder for future right-side menu -->
+        <div></div>
+    </div>
+</nav>
 
-    <div id="messages-container" class="fixed top-5 right-5 z-50 space-y-2 w-72"></div>
+<style>
+/* Smooth underline animation for nav links */
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0%;
+    height: 2px;
+    background: currentColor;
+    transition: width 0.3s ease;
+}
+.nav-link:hover::after {
+    width: 100%;
+}
+</style>
 
-    <main class="container mx-auto mt-8 p-4">
-        {% block content %}
-        {% endblock %}
+
+    <!-- Messages -->
+    <div id="messages-container" class="fixed top-6 right-6 z-50 space-y-3 w-80"></div>
+
+    <!-- Main content -->
+    <main class="container mx-auto flex-1 mt-10 px-6">
+        <div class="bg-white rounded-2xl shadow-xl p-6 fade-in">
+            {% block content %}
+            {% endblock %}
+        </div>
     </main>
 
+    <!-- Footer -->
+    <footer class="bg-white mt-12 py-4 border-t">
+        <div class="container mx-auto text-center text-gray-500 text-sm">
+            &copy; {{ now|date:"Y" }} Momentum. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- JS for messages -->
     <script>
     document.body.addEventListener('showMessage', function (event) {
-        // Zinutes is trigger
         const messageText = event.detail.text;
         const messageLevel = event.detail.level;
 
-        // Zinuciu spalv
-        const bgColor = messageLevel === 'success' ? 'bg-lime-100' : 'bg-red-100';
-        const textColor = messageLevel === 'success' ? 'text-lime-800' : 'text-red-800';
+        const colors = {
+            success: { bg: 'bg-emerald-100', text: 'text-emerald-800', icon: 'M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.707a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l4-4z' },
+            error:   { bg: 'bg-rose-100', text: 'text-rose-800', icon: 'M10 18a8 8 0 100-16 8 8 0 000 16zm-2-5h4v2H8v-2zm0-6h4v4H8V7z' }
+        };
 
-        // The message element using JavaScript
+        const style = colors[messageLevel] || colors.error;
+
         const messageDiv = document.createElement('div');
-        messageDiv.className = `flex items-center p-4 text-sm rounded-lg shadow-lg transition-opacity duration-500 opacity-0 ${bgColor} ${textColor}`;
+        messageDiv.className = `flex items-center p-4 text-sm rounded-xl shadow-lg fade-in ${style.bg} ${style.text}`;
         messageDiv.innerHTML = `
-            <svg class="flex-shrink-0 inline w-4 h-4 me-3" fill="currentColor" viewBox="0 0 20 20"><path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/></svg>
+            <svg class="flex-shrink-0 w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20"><path d="${style.icon}"/></svg>
             <span class="font-medium">${messageText}</span>
         `;
 
-        // The new message to container
         const messagesContainer = document.getElementById('messages-container');
         messagesContainer.prepend(messageDiv);
 
-        // To trigger the CSS transition for the fade-in effect
         setTimeout(() => {
-            messageDiv.classList.remove('opacity-0');
-        }, 10);
-
-        // Timeout to fade out and the message removed after 3 seconds
-        setTimeout(() => {
-            messageDiv.classList.add('opacity-0');
+            messageDiv.classList.add('opacity-0', 'transition-opacity', 'duration-500');
             messageDiv.addEventListener('transitionend', () => messageDiv.remove());
         }, 3000);
     });

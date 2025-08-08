@@ -1,17 +1,51 @@
 {% load humanize %}
-<li id="expense-{{ expense.id }}" class="border-b last:border-b-0 py-4 flex justify-between items-center">
+<li id="expense-{{ expense.id }}"
+    class="bg-white/20 dark:bg-white/10 backdrop-blur-md border border-white/20
+           rounded-xl p-4 mb-4 shadow-md flex justify-between items-center
+           hover:shadow-lg hover:scale-[1.02] transition-all duration-200">
+
+    <!-- Left side: title + date + category -->
     <div>
-        <p class="text-lg font-semibold text-gray-900">{{ expense.title }}</p>
-        <p class="text-sm text-gray-500">
+        <p class="text-lg font-semibold text-gray-900 dark:text-white">
+            {{ expense.title }}
+        </p>
+        <p class="text-sm text-gray-600 dark:text-gray-400">
             {{ expense.expense_date|date:"F d, Y" }}
-            {% if expense.category %}<span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">{{ expense.category }}</span>{% endif %}
+            {% if expense.category %}
+                <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                             bg-gray-100/60 dark:bg-gray-700/60 text-gray-800 dark:text-gray-200
+                             border border-white/20">
+                    {{ expense.category }}
+                </span>
+            {% endif %}
         </p>
     </div>
+
+    <!-- Right side: amount + buttons -->
     <div class="flex items-center space-x-4">
-        <p class="text-xl font-bold text-red-600">-€{{ expense.amount|floatformat:2|intcomma }}</p>
+        <p class="text-xl font-bold text-red-500">
+            -€{{ expense.amount|floatformat:2|intcomma }}
+        </p>
         <div class="flex items-center space-x-2">
-            <button hx-get="{% url 'expense-edit' expense.id %}" hx-target="#expense-{{ expense.id }}" hx-swap="outerHTML" class="text-blue-500 hover:text-blue-700 font-medium">Edit</button>
-            <button hx-delete="{% url 'expense-delete' expense.id %}" hx-target="#expense-{{ expense.id }}" hx-swap="outerHTML" hx-confirm="Are you sure?" class="text-red-500 hover:text-red-700 font-medium">Delete</button>
+            <button
+                hx-get="{% url 'expense-edit' expense.id %}"
+                hx-target="#expense-{{ expense.id }}"
+                hx-swap="outerHTML"
+                class="px-3 py-1 rounded-lg bg-blue-500/80 text-white border border-white/20
+                       backdrop-blur-sm hover:bg-blue-500 hover:scale-105
+                       transition-all duration-200 shadow-sm">
+                Edit
+            </button>
+            <button
+                hx-delete="{% url 'expense-delete' expense.id %}"
+                hx-target="#expense-{{ expense.id }}"
+                hx-swap="outerHTML"
+                hx-confirm="Are you sure?"
+                class="px-3 py-1 rounded-lg bg-red-500/80 text-white border border-white/20
+                       backdrop-blur-sm hover:bg-red-500 hover:scale-105
+                       transition-all duration-200 shadow-sm">
+                Delete
+            </button>
         </div>
     </div>
 </li>
