@@ -1,66 +1,62 @@
 {% load humanize %}
 <li id="invoice-{{ invoice.id }}"
-    class="py-4 px-6 transition-colors duration-200
-           hover:bg-gray-500/10 dark:hover:bg-gray-600/20">
+    class="py-5 px-6 transition-colors duration-200
+           hover:bg-gray-50 dark:hover:bg-gray-800/40 rounded-lg">
 
-    <div class="flex justify-between items-center">
-        <!-- Left side: Client, Title, Status -->
-        <div class="flex items-center space-x-4">
-            <div class="flex-shrink-0">
-                <span class="inline-flex items-center justify-center h-3 w-3 rounded-full
-                             {% if invoice.status == 'PAID' %} bg-lime-500 dark:bg-lime-900/50
-                             {% elif invoice.status == 'SENT' %} bg-indigo-500 dark:bg-indigo-900/50
-                             {% else %} bg-yellow-500 dark:bg-yellow-900/50 {% endif %}">
-                 <!--   <span class="font-medium text-lg
-                                 {% if invoice.status == 'PAID' %} text-lime-600 dark:text-lime-300
-                                 {% elif invoice.status == 'SENT' %} text-indigo-600 dark:text-indigo-300
-                                 {% else %} text-yellow-600 dark:text-yellow-300 {% endif %}">
-                        {{ invoice.client.name|first }} -->
-                    </span>
-                </span>
-            </div>
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+        <!-- Left: Status + Title + Client -->
+        <div class="flex items-center gap-4">
+            <!-- Status Badge -->
+            <span class="px-2.5 py-1 text-xs font-semibold rounded-full
+                         {% if invoice.status == 'PAID' %} bg-lime-100 text-lime-800 dark:bg-lime-900/40 dark:text-lime-300
+                         {% elif invoice.status == 'SENT' %} bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300
+                         {% else %} bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300 {% endif %}">
+                {{ invoice.get_status_display }}
+            </span>
+
             <div>
-                <p class="text-lg font-semibold text-gray-900 dark:text-white">
+                <p class="text-lg font-semibold text-gray-900 dark:text-white leading-tight">
                     {{ invoice.title }}
                 </p>
                 <p class="text-sm text-gray-600 dark:text-gray-400">
-                    To: {{ invoice.client.name }} (#{{ invoice.invoice_number }})
+                    To: {{ invoice.client.name }} &middot; #{{ invoice.invoice_number }}
                 </p>
             </div>
         </div>
 
-        <!-- Right side: Amount and Buttons -->
-        <div class="flex items-center space-x-6">
-            <p class="text-xl font-bold text-gray-800 dark:text-gray-200">
+        <!-- Right: Amount + Actions -->
+        <div class="flex items-center gap-6">
+            <p class="text-xl font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap">
                 €{{ invoice.amount|floatformat:2|intcomma }}
             </p>
-            <div class="flex items-center space-x-2">
+
+            <div class="flex items-center gap-2">
                 <!-- PDF LINK -->
                 <a href="{% url 'invoice-pdf' invoice.id %}" target="_blank"
-                   class="px-3 py-1 rounded-lg bg-gray-400/80 text-white border border-white/20
-                          backdrop-blur-sm hover:bg-gray-500 hover:scale-105
-                          transition-all duration-200 shadow-sm text-sm font-medium">
+                   class="px-3 py-1 rounded-lg bg-gray-500/80 text-white
+                          hover:bg-gray-600 transition-all duration-200 text-sm font-medium shadow-sm">
                     PDF
                 </a>
+
                 <!-- EDIT BUTTON -->
                 <button
                     hx-get="{% url 'invoice-edit' invoice.id %}"
                     hx-target="#invoice-{{ invoice.id }}"
                     hx-swap="outerHTML"
-                    class="px-3 py-1 rounded-lg bg-indigo-500/80 text-white border border-white/20
-                           backdrop-blur-sm hover:bg-indigo-500 hover:scale-105
-                           transition-all duration-200 shadow-sm text-sm font-medium">
+                    class="px-3 py-1 rounded-lg bg-indigo-500/80 text-white
+                           hover:bg-indigo-600 transition-all duration-200 text-sm font-medium shadow-sm">
                     Edit
                 </button>
+
                 <!-- DELETE BUTTON -->
                 <button
                     hx-delete="{% url 'invoice-delete' invoice.id %}"
                     hx-target="#invoice-{{ invoice.id }}"
                     hx-swap="outerHTML"
                     hx-confirm="Are you sure?"
-                    class="px-3 py-1 rounded-lg bg-rose-800/80 text-white border border-white/20
-                           backdrop-blur-sm hover:bg-rose-500 hover:scale-105
-                           transition-all duration-200 shadow-sm text-sm font-medium">
+                    class="px-3 py-1 rounded-lg bg-rose-600/80 text-white
+                           hover:bg-rose-700 transition-all duration-200 text-sm font-medium shadow-sm">
                     Delete
                 </button>
             </div>

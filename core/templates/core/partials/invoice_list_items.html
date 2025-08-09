@@ -3,9 +3,16 @@
 <ul id="invoice-list-ul" class="divide-y divide-gray-200/50 dark:divide-gray-700/50">
     {% for invoice in invoices %}
         {% if invoice.id %}
-            {% include 'core/partials/invoice_item.html' %}
+            <li class="transition-colors duration-200 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+                {% include 'core/partials/invoice_item.html' %}
+            </li>
         {% endif %}
     {% empty %}
-        <li id="empty-message" class="text-center text-gray-600 dark:text-gray-400 py-6">No invoices found matching your criteria.</li>
+        <li id="empty-message"
+            class="py-8 px-4 text-center bg-gray-50 dark:bg-gray-800/50 rounded-lg shadow-sm">
+            <p class="text-gray-600 dark:text-gray-400 text-sm font-medium">
+                No invoices found matching your criteria.
+            </p>
+        </li>
     {% endfor %}
 </ul>
