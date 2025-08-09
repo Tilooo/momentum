@@ -4,9 +4,6 @@
 
 This project moves beyond simple bookkeeping, offering powerful features like a real-time profitability dashboard, an intelligent expense parser, and dynamic data visualizations to give freelancers true command over their finances.
 
-![Momentum Screenshot](https://via.placeholder.com/800x450.png?text=Momentum+Dashboard+Screenshot)
-*(Suggestion: Replace the placeholder link above with a real screenshot of your beautiful app!)*
-
 ---
 
 ## ✨ Core Features
