@@ -13,6 +13,7 @@ urlpatterns = [
     path('invoices/<int:pk>/', views.invoice_detail, name='invoice-detail'),
     path('invoices/clear/', views.clear_form, name='clear-form'),
     path('invoices/<int:pk>/pdf/', views.generate_invoice_pdf, name='invoice-pdf'),
+    path('invoices/list/', views.invoice_list_partial, name='invoice-list-partial'),
 
     # expense urls
     path('expenses/', views.expense_list, name='expense-list'),

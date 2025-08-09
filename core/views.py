@@ -15,6 +15,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from django.utils.timezone import now
 from django.contrib import messages
+from django.db.models import Q
 
 from .models import Invoice, Client, Expense
 from .forms import InvoiceForm, ExpenseForm
@@ -303,3 +304,33 @@ def generate_invoice_pdf(request, pk):
     response['Content-Disposition'] = f'attachment; filename="invoice_{invoice.invoice_number}.pdf"'
 
     return response
+
+def invoice_list_partial(request):
+    """
+    filtering and sorting for the invoice list.
+    """
+    invoices = Invoice.objects.all()
+
+    # filtering
+    search_text = request.GET.get('search', '').strip()
+    if search_text:
+        invoices = invoices.filter(
+            Q(title__icontains=search_text) |
+            Q(client__name__icontains=search_text)
+        )
+
+    # sorting
+    sort_by = request.GET.get('sort_by', 'created_at') # Default sort
+    sort_order = request.GET.get('sort_order', 'desc') # Default order
+
+    # validating the sort by parameter
+    allowed_sort_fields = ['created_at', 'due_date', 'amount', 'client__name']
+    if sort_by not in allowed_sort_fields:
+        sort_by = 'created_at' # Fallback to default
+
+    if sort_order == 'asc':
+        invoices = invoices.order_by(sort_by)
+    else: # default to descending
+        invoices = invoices.order_by(f'-{sort_by}')
+
+    return render(request, 'core/partials/invoice_list_items.html', {'invoices': invoices})

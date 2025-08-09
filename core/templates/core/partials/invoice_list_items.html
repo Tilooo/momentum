@@ -1,0 +1,11 @@
+<!-- core/templates/core/partials/invoice_list_items.html -->
+
+<ul id="invoice-list-ul" class="divide-y divide-gray-200/50 dark:divide-gray-700/50">
+    {% for invoice in invoices %}
+        {% if invoice.id %}
+            {% include 'core/partials/invoice_item.html' %}
+        {% endif %}
+    {% empty %}
+        <li id="empty-message" class="text-center text-gray-600 dark:text-gray-400 py-6">No invoices found matching your criteria.</li>
+    {% endfor %}
+</ul>

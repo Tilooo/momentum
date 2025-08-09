@@ -33,37 +33,54 @@
     </div>
 </div>
 
-<!-- Invoice header -->
-<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-    <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">Invoices</h1>
-    <button hx-get="{% url 'invoice-create' %}"
-            hx-target="#invoice-form-container"
-            hx-swap="innerHTML"
-            class="bg-blue-600/80 hover:bg-blue-700/80 text-white font-semibold
-                   py-2 px-5 rounded-xl shadow-lg transition-all duration-300
-                   backdrop-blur-sm border border-white/20">
-        + New Invoice
-    </button>
-</div>
+<!-- controls and the list -->
+<form hx-get="{% url 'invoice-list-partial' %}" hx-target="#invoice-list-container" hx-trigger="keyup changed delay:500ms, change from:input, change from:select">
 
-<!-- Invoice form -->
-<div id="invoice-form-container" class="mb-6"></div>
+    <!-- Invoice header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">Invoices</h1>
 
-<!-- Invoice list -->
-<div id="invoice-list"
-     class="rounded-2xl shadow-xl overflow-hidden
-            bg-white/50 dark:bg-gray-800/50
-            backdrop-blur-md border border-white/30 dark:border-gray-700/30">
-    <ul id="invoice-list-ul" class="divide-y divide-gray-200/50 dark:divide-gray-700/50">
-        {% for invoice in invoices %}
-            {% if invoice.id %}
-                {% include 'core/partials/invoice_item.html' %}
-            {% endif %}
-        {% empty %}
-            <li id="empty-message" class="text-center text-gray-600 dark:text-gray-400 py-6">No invoices yet.</li>
-        {% endfor %}
-    </ul>
-</div>
+        <!-- Search and Sort Controls -->
+        <div class="flex items-center space-x-4">
+            <input type="search" name="search" placeholder="Search invoices..."
+                   class="w-48 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50
+                          focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+            <select name="sort_by" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50">
+                <option value="created_at">Sort by Date</option>
+                <option value="amount">Sort by Amount</option>
+                <option value="client__name">Sort by Client</option>
+            </select>
+
+            <select name="sort_order" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50">
+                <option value="desc">Descending</option>
+                <option value="asc">Ascending</option>
+            </select>
+
+            <button type="button" hx-get="{% url 'invoice-create' %}"
+                    hx-target="#invoice-form-container"
+                    hx-swap="innerHTML"
+                    class="bg-blue-600/80 hover:bg-blue-700/80 text-white font-semibold
+                           py-2 px-5 rounded-xl shadow-lg transition-all duration-300
+                           backdrop-blur-sm border border-white/20">
+                + New Invoice
+            </button>
+        </div>
+    </div>
+
+    <!-- Invoice form container -->
+    <div id="invoice-form-container" class="mb-6"></div>
+
+    <!-- Invoice list container -->
+    <div id="invoice-list-container"
+         class="rounded-2xl shadow-xl overflow-hidden
+                bg-white/50 dark:bg-gray-800/50
+                backdrop-blur-md border border-white/30 dark:border-gray-700/30">
+        {% include 'core/partials/invoice_list_items.html' %}
+    </div>
+
+</form>
+
 
 <!-- Chart -->
 <div class="p-6 rounded-2xl shadow-xl mt-8
@@ -75,6 +92,7 @@
     </div>
 </div>
 
+<!-- Script for Chart -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const ctx = document.getElementById('incomeChart').getContext('2d');
