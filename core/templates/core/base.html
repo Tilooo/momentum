@@ -11,7 +11,7 @@
     {% htmx_script %}
 
     <style>
-        /* Smooth fade in animation for elements */
+        /* a clean style block for all custom CSS */
         .fade-in {
             animation: fadeIn 0.4s ease-in-out;
         }
@@ -19,7 +19,6 @@
             from { opacity: 0; transform: translateY(-5px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* nav link underline animation */
         .nav-link {
             position: relative;
             transition: color 0.3s ease;
@@ -39,62 +38,45 @@
         }
     </style>
 </head>
+
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 text-gray-800 min-h-screen flex flex-col"
       hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 
     <!-- Navigation -->
-<nav class="sticky top-0 z-50 backdrop-blur-md border-b border-white/20 dark:border-gray-700/20
-            bg-gradient-to-r from-yellow-400/30 via-lime-500/30 to-violet-500/30
-            dark:from-yellow-400/20 dark:via-lime-500/20 dark:to-violet-500/20 shadow-lg">
-    <div class="container mx-auto px-6 py-4 flex justify-between items-center">
-        <!-- Logo -->
-        <div class="flex items-center space-x-10">
-            <a href="/" class="text-2xl font-extrabold tracking-wide text-gray-900 dark:text-white drop-shadow">
-                Momentum
-            </a>
-            <!-- Links -->
-            <ul class="flex space-x-8">
-                <li>
-                    <a href="{% url 'invoice-list' %}"
-                       class="relative nav-link font-medium text-gray-800/90 dark:text-gray-200/90 hover:text-white dark:hover:text-white transition-colors">
-                        Invoices
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'expense-list' %}"
-                       class="relative nav-link font-medium text-gray-800/90 dark:text-gray-200/90 hover:text-white dark:hover:text-white transition-colors">
-                        Expenses
-                    </a>
-                </li>
-            </ul>
+    <nav class="sticky top-0 z-50 backdrop-blur-md border-b border-white/20 dark:border-gray-700/20
+                bg-gradient-to-r from-yellow-400/30 via-lime-500/30 to-violet-500/30
+                dark:from-yellow-400/20 dark:via-lime-500/20 dark:to-violet-500/20 shadow-lg">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Logo & Links (left) -->
+            <div class="flex items-center space-x-10">
+                <a href="/" class="text-2xl font-extrabold tracking-wide text-gray-900 dark:text-white drop-shadow">
+                    Momentum
+                </a>
+                <ul class="flex space-x-8">
+                    <li>
+                        <a href="{% url 'invoice-list' %}" class="relative nav-link font-medium text-gray-800/90 dark:text-gray-200/90 hover:text-white dark:hover:text-white transition-colors">
+                            Invoices
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'expense-list' %}" class="relative nav-link font-medium text-gray-800/90 dark:text-gray-200/90 hover:text-white dark:hover:text-white transition-colors">
+                            Expenses
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Live clock (right) -->
+            <div id="live-clock" class="font-semibold text-white text-sm drop-shadow">
+                <!-- Clock will be inserted here -->
+            </div>
         </div>
-        <!-- Placeholder for future right-side menu -->
-        <div></div>
-    </div>
-</nav>
+    </nav>
 
-<style>
-/* Smooth underline animation for nav links */
-.nav-link::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 0%;
-    height: 2px;
-    background: currentColor;
-    transition: width 0.3s ease;
-}
-.nav-link:hover::after {
-    width: 100%;
-}
-</style>
+    <!-- Messages Container -->
+    <div id="messages-container" class="fixed top-20 right-6 z-50 space-y-3 w-80"></div>
 
-
-    <!-- Messages -->
-    <div id="messages-container" class="fixed top-6 right-6 z-50 space-y-3 w-80"></div>
-
-    <!-- Main content -->
+    <!-- Main Content -->
     <main class="container mx-auto flex-1 mt-10 px-6">
         <div class="bg-white rounded-2xl shadow-xl p-6 fade-in">
             {% block content %}
@@ -105,39 +87,44 @@
     <!-- Footer -->
     <footer class="bg-white mt-12 py-4 border-t">
         <div class="container mx-auto text-center text-gray-500 text-sm">
-            &copy; {{ now|date:"Y" }} Momentum. All rights reserved.
+            &copy; {% now "Y" %} Momentum. All rights reserved.
         </div>
     </footer>
 
-    <!-- JS for messages -->
+    <!-- Main JavaScript Block -->
     <script>
+    // --- Flash message ---
     document.body.addEventListener('showMessage', function (event) {
         const messageText = event.detail.text;
         const messageLevel = event.detail.level;
-
         const colors = {
             success: { bg: 'bg-emerald-100', text: 'text-emerald-800', icon: 'M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.707a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 10-1.414 1.414l2 2a1 1 0 001.414 0l4-4z' },
             error:   { bg: 'bg-rose-100', text: 'text-rose-800', icon: 'M10 18a8 8 0 100-16 8 8 0 000 16zm-2-5h4v2H8v-2zm0-6h4v4H8V7z' }
         };
-
         const style = colors[messageLevel] || colors.error;
-
         const messageDiv = document.createElement('div');
         messageDiv.className = `flex items-center p-4 text-sm rounded-xl shadow-lg fade-in ${style.bg} ${style.text}`;
-        messageDiv.innerHTML = `
-            <svg class="flex-shrink-0 w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20"><path d="${style.icon}"/></svg>
-            <span class="font-medium">${messageText}</span>
-        `;
-
+        messageDiv.innerHTML = `<svg class="flex-shrink-0 w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20"><path d="${style.icon}"/></svg><span class="font-medium">${messageText}</span>`;
         const messagesContainer = document.getElementById('messages-container');
         messagesContainer.prepend(messageDiv);
-
         setTimeout(() => {
             messageDiv.classList.add('opacity-0', 'transition-opacity', 'duration-500');
             messageDiv.addEventListener('transitionend', () => messageDiv.remove());
         }, 3000);
     });
-    </script>
 
+    // --- Live clock ---
+    function updateClock() {
+        const clockElement = document.getElementById('live-clock');
+        if (clockElement) {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-GB');
+            const dateString = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            clockElement.textContent = `${dateString} | ${timeString}`;
+        }
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+    </script>
 </body>
 </html>
