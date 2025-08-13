@@ -4,7 +4,7 @@
 
 This project moves beyond simple bookkeeping, offering powerful features like a real-time profitability dashboard, an intelligent expense parser, and dynamic data visualizations to give freelancers true command over their finances.
 
----
+<img width="768" height="1226" alt="Screenshot (8586)" src="https://github.com/user-attachments/assets/7eccba15-9911-4f92-b389-059634a336e1" />
 
 ## ✨ Core Features
 
@@ -35,4 +35,3 @@ This project was built with a modern, professional technology stack:
     *   **SQLite** (for development)
 
 This project was a fantastic journey in full-stack web development, showcasing the power and elegance of the Python/Django ecosystem combined with modern frontend tools like HTMX and Tailwind CSS.
-<img width="768" height="1226" alt="Screenshot (8586)" src="https://github.com/user-attachments/assets/7eccba15-9911-4f92-b389-059634a336e1" />
